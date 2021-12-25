@@ -10,6 +10,8 @@ That's take a look what can &lt;msc-ez-video /&gt; do in different combination ?
 
 （There will be only sound and picture in picture functions display when controls not set.）
 
+![<msc-ez-video />](https://blog.lalacube.com/mei/img/preview/msc-ez-video.png)
+
 ## Features
 
 - Tap &lt;msc-ez-video /&gt; to toggle play / pause.
@@ -364,7 +366,7 @@ Decrease &lt;msc-ez-video /&gt; playback rate. Minimum is `0.25`.
 
 Increase &lt;msc-ez-video /&gt; playback rate. Minimum is `2`.
 
-- **0** ~ **0**
+- **0** ~ **9**
 
 &lt;msc-ez-video /&gt; jumps to specific timeline. Ex: `7` means to timeline `70%`.
 
