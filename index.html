@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Web Component: &lt;msc-ez-video&gt; - web components based video player</title>
+<meta name="description" content="Modern browsers already had a vivid player for <video />. However, web developers and designers still want to custom their own style player for different situations. Sounds like web component will do a lot favor for this purpose. With <msc-ez-video /> support, customize control panel will become a piece of cake. <msc-ez-video /> adopts CSS custom properties, developers could style them as they want." />
+<script type="module" src="mjs/wc-msc-ez-video.js"></script>
+<style>
+/*** The new CSS Reset - version 1.4.2 (last updated 30.11.2021) ***/
+/* All rights reserved from https://elad2412.github.io/the-new-css-reset/ */
+*:where(:not(iframe,canvas,img,svg,video):not(svg *,symbol *)){all:unset;display:revert;}
+*,*::before,*::after{box-sizing:border-box;}
+ol,ul,menu{list-style:none;}
+img{max-width:100%;}
+table{border-collapse:collapse;}
+textarea{white-space:revert;}
+:where([contenteditable]){-moz-user-modify:read-write;-webkit-user-modify:read-write;overflow-wrap:break-word;-webkit-line-break:after-white-space;}
+
+/* page */
+html,body{font-family:system-ui,sans-serif;text-size-adjust:100%;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;font-size:16px;}
+#hd,#ft{display:none;}
+
+body{position:relative;inline-size:100vw;block-size:100vh;}
+.wrap{position:absolute;inset-inline-start:50%;inset-block-start:50%;inline-size:65vw;transform:translate(-50%,-50%);}
+
+@media screen and (max-width: 767px) {
+  .wrap{width:100%;}
+}
+
+/* msc-ez-video */
+msc-ez-video:not(:defined){visibility:hidden;}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+  <msc-ez-video
+    src="https://blog.lalacube.com/mei/video/tunnel.mp4"
+    poster="https://blog.lalacube.com/mei/img/msc-ez-video/tunnel.png"
+    width="16"
+    height="9"
+    muted
+    autoplay
+    loop
+    controls
+    title="<msc-ez-video /> demo"
+    artist="mei's studio"
+  ></msc-ez-video>
+</div>
+
+<script type="module">
+import { MscEzVideo } from './mjs/wc-msc-ez-video.js';
+
+const config = {
+  width: 16,
+  height: 9,
+  src: 'https://blog.lalacube.com/mei/video/tunnel.mp4',
+  poster: 'https://blog.lalacube.com/mei/img/msc-ez-video/tunnel.png',
+  muted: true,
+  autoplay: true,
+  controls: true,
+  loop: true,
+  crossorigin: 'anonymous',
+  title: '<msc-ez-video /> demo',
+  artist: 'mei\'s studio'
+};
+
+// const video = new MscEzVideo(config);
+// document.body.appendChild(video);
+</script>
+
+</body>
+
+</html>
