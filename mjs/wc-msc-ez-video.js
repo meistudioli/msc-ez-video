@@ -806,9 +806,9 @@ export class MscEzVideo extends HTMLElement {
 
   set autoplay(value) {
     if (value) {
-      return this.setAttribute('autoplay', '');
+      this.setAttribute('autoplay', '');
     } else {
-      return this.removeAttribute('autoplay');
+      this.removeAttribute('autoplay');
     }
   }
 
@@ -818,9 +818,9 @@ export class MscEzVideo extends HTMLElement {
 
   set controls(value) {
     if (value) {
-      return this.setAttribute('controls', '');
+      this.setAttribute('controls', '');
     } else {
-      return this.removeAttribute('controls');
+      this.removeAttribute('controls');
     }
   }
 
