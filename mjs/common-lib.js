@@ -161,7 +161,7 @@ Object.defineProperties(_wcl, {
     configurable: true,
     enumerable: true,
     value: function(apiName, element) {
-      let node, flag, prefix;
+      let node, flag;
 
       navigator.supports = navigator.supports || {};
       navigator.supports.api = navigator.supports.api || {};
@@ -408,8 +408,8 @@ Object.defineProperties(_wcl, {
       /*
        * y could be y-coord or DOM element
        */
-      const { width, height } = this.getPageSize();
-      const { width:winWidth, height:winHeight } = this.getViewportSize();
+      const { height } = this.getPageSize();
+      const { height:winHeight } = this.getViewportSize();
 
       if (typeof y.nodeType !== 'undefined' && y.nodeType === 1 && typeof y.getBoundingClientRect === 'function') {
         y = this.getPosition(y).y;
@@ -519,14 +519,8 @@ Object.defineProperties(_wcl, {
       navigator.supports = navigator.supports || {};
       if (typeof navigator.supports.PiP === 'undefined') {
         const node = document.createElement('video');
-        const isMobile = this.isMobile();
 
         navigator.supports.PiP = this.isAPISupport('requestPictureInPicture', node) || (node.webkitSupportsPresentationMode && typeof node.webkitSetPresentationMode === 'function');
-        // if (this.isAPISupport('requestPictureInPicture', node)) {
-        //  navigator.supports.PiP = true;
-        // } else if ((node.webkitSupportsPresentationMode && typeof node.webkitSetPresentationMode === 'function') && (isMobile[0] === 'iPad' || isMobile === false)) {
-        //  navigator.supports.PiP = true;
-        // }
       }
       return navigator.supports.PiP;
     }

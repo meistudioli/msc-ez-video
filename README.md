@@ -1,6 +1,6 @@
 # msc-ez-video
 
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/msc-ez-video)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/msc-ez-video) [![DeepScan grade](https://deepscan.io/api/teams/16372/projects/19646/branches/513171/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=16372&pid=19646&bid=513171)
 
 Modern browsers already had a vivid player for &lt;video /&gt;. However, web developers and designers still want to custom their own style player for different situations.
 

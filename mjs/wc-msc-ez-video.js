@@ -642,7 +642,7 @@ export class MscEzVideo extends HTMLElement {
         ens.classList.remove('error');
         video[attrName] = this[attrName];
         break;
-      case 'muted':
+      case 'muted': {
         if (!this.muted) {
           btnMute.setAttribute('data-mode', 'off');
           if (ens.classList.contains('active')) {
@@ -654,6 +654,7 @@ export class MscEzVideo extends HTMLElement {
             this._reaction('mute');
           }
         }
+      }
       case 'loop':
       case 'autoplay':
         video[attrName] = this[attrName];
@@ -693,9 +694,9 @@ export class MscEzVideo extends HTMLElement {
 
   set width(value) {
     if (value) {
-      return this.setAttribute('width', value);
+      this.setAttribute('width', value);
     } else {
-      return this.removeAttribute('width');
+      this.removeAttribute('width');
     }
   }
 
@@ -705,9 +706,9 @@ export class MscEzVideo extends HTMLElement {
 
   set height(value) {
     if (value) {
-      return this.setAttribute('height', value);
+      this.setAttribute('height', value);
     } else {
-      return this.removeAttribute('height');
+      this.removeAttribute('height');
     }
   }
 
@@ -717,9 +718,9 @@ export class MscEzVideo extends HTMLElement {
 
   set src(value) {
     if (value) {
-      return this.setAttribute('src', value);
+      this.setAttribute('src', value);
     } else {
-      return this.removeAttribute('src');
+      this.removeAttribute('src');
     }
   }
 
@@ -729,9 +730,9 @@ export class MscEzVideo extends HTMLElement {
 
   set poster(value) {
     if (value) {
-      return this.setAttribute('poster', value);
+      this.setAttribute('poster', value);
     } else {
-      return this.removeAttribute('poster');
+      this.removeAttribute('poster');
     }
   }
 
@@ -741,9 +742,9 @@ export class MscEzVideo extends HTMLElement {
 
   set crossorigin(value) {
     if (value) {
-      return this.setAttribute('crossorigin', value);
+      this.setAttribute('crossorigin', value);
     } else {
-      return this.removeAttribute('crossorigin');
+      this.removeAttribute('crossorigin');
     }
   }
 
@@ -753,9 +754,9 @@ export class MscEzVideo extends HTMLElement {
 
   set title(value) {
     if (value) {
-      return this.setAttribute('title', value);
+      this.setAttribute('title', value);
     } else {
-      return this.removeAttribute('title');
+      this.removeAttribute('title');
     }
   }
 
@@ -765,9 +766,9 @@ export class MscEzVideo extends HTMLElement {
 
   set artist(value) {
     if (value) {
-      return this.setAttribute('artist', value);
+      this.setAttribute('artist', value);
     } else {
-      return this.removeAttribute('artist');
+      this.removeAttribute('artist');
     }
   }
 
@@ -777,9 +778,9 @@ export class MscEzVideo extends HTMLElement {
 
   set muted(value) {
     if (value) {
-      return this.setAttribute('muted', '');
+      this.setAttribute('muted', '');
     } else {
-      return this.removeAttribute('muted');
+      this.removeAttribute('muted');
     }
   }
 
@@ -789,9 +790,9 @@ export class MscEzVideo extends HTMLElement {
 
   set loop(value) {
     if (value) {
-      return this.setAttribute('loop', '');
+      this.setAttribute('loop', '');
     } else {
-      return this.removeAttribute('loop');
+      this.removeAttribute('loop');
     }
   }
 
@@ -950,7 +951,7 @@ export class MscEzVideo extends HTMLElement {
   }
 
   _onKeyDown(evt) {
-    const { key } = evt;
+    const { key, preventDefault } = evt;
     const { video, btnMute, btnFullscreen, btnPiP } = this.#nodes;
     const { request } = fullscreen;
     let rate;
@@ -959,7 +960,7 @@ export class MscEzVideo extends HTMLElement {
       return;
     }
 
-    if (evt?.preventDefault) {
+    if (preventDefault) {
       evt.preventDefault();
     }
 
@@ -1182,7 +1183,7 @@ export class MscEzVideo extends HTMLElement {
        * document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft'}))
        */
 
-      const { poster, title, artist, playbackRate, currentTime, duration } = this;
+      const { poster, title, artist } = this;
       const { length: cnt } = getAllEzVideo();
           let actionHandlers
 
