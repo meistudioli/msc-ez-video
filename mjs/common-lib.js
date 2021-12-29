@@ -5,9 +5,9 @@ Object.defineProperties(_wcl, {
     configurable: true,
     enumerable: true,
     value: function() {
-      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, (c) =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-      )
+      );
     }
   },
   getWCConfig: {
@@ -52,13 +52,91 @@ Object.defineProperties(_wcl, {
       } else if (script) {
         // apply inner script's config
         try {
-          config = JSON.parse(script.textContent.replace(/\n/g, '').trim())
+          config = JSON.parse(script.textContent.replace(/\n/g, '').trim());
         } catch(err) {
           error = err.message;
         }
       }
 
       return { config, error };
+    }
+  },
+  whenDefined: {
+    configurable: true,
+    enumerable: true,
+    value: function() {
+      const units = Array.from(arguments);
+
+      if (units.indexOf('document.body') === -1) {
+        units.push('document.body');
+      }
+
+      const promises = units.map(
+        (unit) => {
+          return new Promise((resolve, reject) => {
+            let c, iid;
+            const max = 10000;
+
+            c = 0;
+            iid = setInterval(() => {
+              let _root, parts;
+              c += 5;
+              if (c > max) {
+                clearInterval(iid);
+                return reject(new Error(`"${unit}" unit missing.`));
+              }
+
+              _root = window;
+              parts = unit.split('.');
+              while (parts.length) {
+                const prop = parts.shift();
+                if (typeof _root[prop] === 'undefined') {
+                  _root = null;
+                  break;
+                } else {
+                  _root = _root[prop];
+                }
+              }
+
+              if (_root !== null && document.readyState && document.readyState !== 'loading') {
+                clearInterval(iid);
+                return resolve();
+              }
+            }, 5);
+          });
+        }
+      );
+
+      return Promise.all(promises);
+    }
+  },
+  loadScript: {
+    configurable: true,
+    enumerable: true,
+    value: function() {
+      /**
+       * Load script(s) to the document
+       * @example
+       loadScript('script-path')
+
+       loadScript('script-path1', 'script-path2')
+       */
+      const currentScripts = Array.from(document.getElementsByTagName('script')).map(
+        (script) => script.src
+      );
+
+      Array.from(arguments).forEach(
+        (path) => {
+          if (currentScripts.includes(path)) {
+            return;
+          }
+
+          const script = document.createElement('script');
+          document.head.appendChild(script);
+          script.async = true;
+          script.src = path;
+        }
+      );
     }
   },
   camelCase: {
@@ -78,7 +156,7 @@ Object.defineProperties(_wcl, {
     value: function(str) {
       return str.replace(/^[a-z]{1}/,
         function($1) {
-          return $1.toUpperCase()
+          return $1.toUpperCase();
         }
       );
     }
@@ -320,7 +398,7 @@ Object.defineProperties(_wcl, {
           try {
             return Array.from(styleSheet.rules).some(
               (rule) => {
-                return rule.media && /prefers-color-scheme:.*dark/i.test(rule.conditionText)
+                return rule.media && /prefers-color-scheme:.*dark/i.test(rule.conditionText);
               }
             );
           } catch(err) {
@@ -417,7 +495,7 @@ Object.defineProperties(_wcl, {
 
       y += offset;
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         let iid;
         const scroll = () => {
           let shift = Math.ceil((y - this.scrollY) * 0.15);
@@ -432,7 +510,7 @@ Object.defineProperties(_wcl, {
           } else {
             iid = requestAnimationFrame(scroll);
           }
-        }
+        };
 
         iid = requestAnimationFrame(scroll);
       });
@@ -443,8 +521,8 @@ Object.defineProperties(_wcl, {
     enumerable: true,
     get: () => {
       return Array.from(document.querySelectorAll('body *'))
-            .map(a => parseFloat(window.getComputedStyle(a).zIndex))
-            .filter(a => !isNaN(a))
+            .map((a) => parseFloat(window.getComputedStyle(a).zIndex))
+            .filter((a) => !isNaN(a))
             .sort((a,b) => a - b)
             .pop();
     }
@@ -488,7 +566,7 @@ Object.defineProperties(_wcl, {
         up = 'mouseup';
       }
 
-      return {down, move, up}
+      return {down, move, up};
     }
   },
   purgeObject: {
@@ -557,7 +635,7 @@ Object.defineProperties(_wcl, {
           exit,
           element,
           event
-        }
+        };
       }
       return navigator.supports.fullscreen;
     }
@@ -566,32 +644,32 @@ Object.defineProperties(_wcl, {
     configurable: true,
     enumerable: true,
     value: function() {
-      let flag;
+      // let flag;
       navigator.supports = navigator.supports || {};
       if (!navigator.supports.wp) {
-        flag = true;
-        try {
-          class DummyClass {}
-        } catch (err) {
-          flag = false;
-        }
+        // flag = true;
+        // try {
+        //   class DummyClass {}
+        // } catch (err) {
+        //   flag = false;
+        // }
 
         navigator.supports.wp = {
-          classes: flag,
+          // classes: flag,
           customElements: 'customElements' in window,
           import: 'import' in document.createElement('link'),
           shadowDOM: !!HTMLElement.prototype.attachShadow,
           template: 'content' in document.createElement('template')
         };
       }
-      return navigator.supports.wp
+      return navigator.supports.wp;
     }
   },
   getScroll: {
     configurable: true,
     enumerable: true,
     value: () => {
-      let x, y
+      let x, y;
       x = (self.pageXOffset) ? self.pageXOffset : (document.documentElement && document.documentElement.scrollLeft) ? document.documentElement.scrollLeft : document.body.scrollLeft;
       y = (self.pageYOffset) ? self.pageYOffset : (document.documentElement && document.documentElement.scrollTop) ? document.documentElement.scrollTop : document.body.scrollTop;
       return { x, y };
@@ -653,7 +731,7 @@ Object.defineProperties(_wcl, {
         height = document.body.clientHeight;
       }
 
-      return { width, height }
+      return { width, height };
     }
   },
   getSize: {
@@ -681,7 +759,7 @@ Object.defineProperties(_wcl, {
         max = a;
       }
 
-      return Math.floor(Math.random() * (max - min + 1) + min)
+      return Math.floor(Math.random() * (max - min + 1) + min);
     }
   },
   grabStyleSheet: {
@@ -733,7 +811,7 @@ Object.defineProperties(_wcl, {
 
       let propStr, findIndex, sign;
 
-      sign = (/keyframes/i.test(selector)) ? '' : ';'
+      sign = (/keyframes/i.test(selector)) ? '' : ';';
       styleSheet = styleSheet.sheet;
       propStr = Object.keys(props).reduce(
         (acc, cur) => {
@@ -748,11 +826,11 @@ Object.defineProperties(_wcl, {
       if (findIndex !== -1) {
         try {
           styleSheet.cssRules[findIndex].style.cssText = propStr;
-        } catch(err) {}
+        } catch(err) { /*error*/ }
       } else {
         try {
           styleSheet.insertRule(`${selector}{${propStr}}`, styleSheet.cssRules.length);
-        } catch(err) {}
+        } catch(err) { /*error*/ }
       }
     }
   }

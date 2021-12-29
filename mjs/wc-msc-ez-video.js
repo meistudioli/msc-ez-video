@@ -57,7 +57,7 @@ const PiP = _wcl.isPiPSupport();
 const mediaSession = _wcl.isAPISupport('mediaSession', navigator);
 const getAllEzVideo = () => {
   return Array.from(document.querySelectorAll(_wcl.classToTagName('MscEzVideo')));
-}
+};
 const mediaTrackAction = (ezVideo, action = 'previous', ezVideos = getAllEzVideo()) => {
   const idx = (ezVideos.indexOf(ezVideo) + (action === 'previous' ? -1 : 1) + ezVideos.length) % ezVideos.length;
   const actEzVideo = ezVideos[idx];
@@ -843,7 +843,7 @@ export class MscEzVideo extends HTMLElement {
 
   get PiPed() {
     const { video } = this.#nodes;
-    let flag = false
+    let flag = false;
     
     if (PiP) {
       if (video.webkitSetPresentationMode) {
@@ -1185,20 +1185,20 @@ export class MscEzVideo extends HTMLElement {
 
       const { poster, title, artist } = this;
       const { length: cnt } = getAllEzVideo();
-          let actionHandlers
+          let actionHandlers;
 
           if (cnt > 1) {
             actionHandlers = [
-              ['seekbackward', (details) => this._onKeyDown({ key: 'ArrowLeft' })],
-              ['seekforward', (details) => this._onKeyDown({ key: 'ArrowRight' })],
+              ['seekbackward', () => this._onKeyDown({ key: 'ArrowLeft' })],
+              ['seekforward', () => this._onKeyDown({ key: 'ArrowRight' })],
               ['previoustrack', () => mediaTrackAction(this, 'previous')],
               ['nexttrack', () => mediaTrackAction(this, 'next')]
-            ]
+            ];
           } else {
             actionHandlers = [
-              ['seekbackward', (details) => this._onKeyDown({ key: 'ArrowLeft' })],
-              ['seekforward', (details) => this._onKeyDown({ key: 'ArrowRight' })]
-            ]
+              ['seekbackward', () => this._onKeyDown({ key: 'ArrowLeft' })],
+              ['seekforward', () => this._onKeyDown({ key: 'ArrowRight' })]
+            ];
           }
 
       navigator.mediaSession.metadata = new window.MediaMetadata({
@@ -1354,7 +1354,7 @@ export class MscEzVideo extends HTMLElement {
     evt.preventDefault();
   }
 
-  _onError(evt) {
+  _onError() {
     const { video:{ error }, ens } = this.#nodes;
 
     /**
@@ -1373,7 +1373,7 @@ export class MscEzVideo extends HTMLElement {
     }));
   }
 
-  _onRatechange(evt) {
+  _onRatechange() {
     // custom event
     this.dispatchEvent(new Event(custumEvents.rate, { bubbles: true, composed: true }));
   }
