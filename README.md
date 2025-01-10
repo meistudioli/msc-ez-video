@@ -120,6 +120,8 @@ document.body.appendChild(nodeC);
 ```html
 <style>
 msc-ez-video {
+  --msc-ez-video-object-fit: contain;
+  
   /* slider thumb */
   --slider-thumb-with: 14px;
   --slider-thumb-color: rgba(255,0,0,1);
