@@ -10,13 +10,16 @@ const defaults = {
   autoplay: false,
   controls: false,
   loop: false,
+  loopendtime: NaN,
   crossorigin: 'anonymous',
   title: 'unknown title',
-  artist: 'unknown artist'
+  artist: 'unknown artist',
 };
 
 const booleanAttrs = ['muted', 'autoplay', 'controls', 'loop'];
+const objectAttrs = [];
 const custumEvents = {
+  loaded: 'ez-video-loadeddata',
   play: 'ez-video-play',
   pause: 'ez-video-pause',
   seek: 'ez-video-seek',
@@ -152,6 +155,12 @@ ${_wccss}
 
 :host(:focus){outline:0 none;}
 :host(:focus-visible){animation:host-focus 5.7s;}
+:host([data-clear-mode]) {
+  .control-pannel,
+  .reactions {
+    visibility: hidden;
+  }
+}
 
 .main {
   --w: ${defaults.width};
@@ -530,7 +539,7 @@ export class MscEzVideo extends HTMLElement {
     }
 
     // upgradeProperty
-    Object.keys(defaults).forEach((key) => this._upgradeProperty(key));
+    Object.keys(defaults).forEach((key) => this.#upgradeProperty(key));
 
     // evt
     this.#data.controller = new AbortController();
@@ -580,6 +589,16 @@ export class MscEzVideo extends HTMLElement {
   }
 
   disconnectedCallback() {
+    // pause video
+    if (!this.paused) {
+      this.pause();
+    }
+
+    // exit PiP
+    if (this.PiPed) {
+      this.exitPiP();
+    }
+
     if (this.#data?.controller) {
       this.#data.controller.abort();
     }
@@ -602,6 +621,10 @@ export class MscEzVideo extends HTMLElement {
             this.#config[attrName] = parseFloat(newValue);
           }
           break;
+        case 'loopendtime': {
+          this.#config[attrName] = _wcl.isNumeric(newValue) ? +newValue : NaN;
+          break;
+        }
         case 'title':
         case 'artist':
         case 'src':
@@ -673,7 +696,15 @@ export class MscEzVideo extends HTMLElement {
     return legalKey;
   }
 
-  _upgradeProperty(prop) {
+  static get supportedEvents() {
+    return Object.keys(custumEvents).map(
+      (key) => {
+        return custumEvents[key];
+      }
+    );
+  }
+
+  #upgradeProperty(prop) {
     let value;
 
     if (MscEzVideo.observedAttributes.includes(prop)) {
@@ -683,6 +714,8 @@ export class MscEzVideo extends HTMLElement {
       } else {
         if (booleanAttrs.includes(prop)) {
           value = (this.hasAttribute(prop) || this.#config[prop]) ? true : false;
+        } else if (objectAttrs.includes(prop)) {
+          value = this.hasAttribute(prop) ? this.getAttribute(prop) : JSON.stringify(this.#config[prop]);
         } else {
           value = this.hasAttribute(prop) ? this.getAttribute(prop) : this.#config[prop];
         }
@@ -798,6 +831,18 @@ export class MscEzVideo extends HTMLElement {
 
   get loop() {
     return this.#config.loop;
+  }
+
+  set loopendtime(value) {
+    if (value) {
+      this.setAttribute('loopendtime', value);
+    } else {
+      this.removeAttribute('loopendtime');
+    }
+  }
+
+  get loopendtime() {
+    return this.#config.loopendtime;
   }
 
   get paused() {
@@ -917,9 +962,7 @@ export class MscEzVideo extends HTMLElement {
     } else {
       this.classList.add('fullscreen');
       btnFullscreen.setAttribute('data-mode', 'on');
-
-      // custom event
-      this.dispatchEvent(new Event(custumEvents.fullscreen, { bubbles: true, composed: true }));
+      this.#fireEvent(custumEvents.fullscreen);
     }
   }
 
@@ -936,9 +979,7 @@ export class MscEzVideo extends HTMLElement {
     } else {
       this.classList.remove('fullscreen');
       btnFullscreen.setAttribute('data-mode', 'off');
-
-      // custom event
-      this.dispatchEvent(new Event(custumEvents.fullscreen, { bubbles: true, composed: true }));
+      this.#fireEvent(custumEvents.fullscreen);
     }
   }
 
@@ -948,6 +989,16 @@ export class MscEzVideo extends HTMLElement {
 
   pause() {
     this.#nodes.video.pause();
+  }
+
+  #fireEvent(evtName, detail) {
+    this.dispatchEvent(new CustomEvent(evtName,
+      {
+        bubbles: true,
+        composed: true,
+        ...(detail && { detail })
+      }
+    ));
   }
 
   _onKeyDown(evt) {
@@ -1145,6 +1196,7 @@ export class MscEzVideo extends HTMLElement {
     const { timeEnded } = this.#nodes;
 
     timeEnded.textContent = this._timeformat(this.duration);
+    this.#fireEvent(custumEvents.loaded);
   }
 
   _onProgress() {
@@ -1170,9 +1222,7 @@ export class MscEzVideo extends HTMLElement {
 
     btnPlay.setAttribute('data-mode', 'play');
     this._reaction('play');
-
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.play, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.play);
 
     if (mediaSession) {
       /*
@@ -1226,9 +1276,7 @@ export class MscEzVideo extends HTMLElement {
 
     btnPlay.setAttribute('data-mode', 'pause');
     this._reaction('pause');
-
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.pause, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.pause);
   }
 
   _onEnded() {
@@ -1244,6 +1292,12 @@ export class MscEzVideo extends HTMLElement {
     const { input } = this.#nodes;
     let value = (currentTime / duration) * 100;
 
+    // loopendtime (only active when loop:true)
+    if (this.loop && !isNaN(this.loopendtime) && currentTime >= this.loopendtime) {
+      this.currentTime = 0;
+      return;
+    }
+
     if (isNaN(value)) {
       value = 0;
     }
@@ -1258,9 +1312,7 @@ export class MscEzVideo extends HTMLElement {
 
     this.currentTime = time;
     this._updatePassedInfo();
-
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.seek, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.seek);
   }
 
   _updatePassedInfo() {
@@ -1285,13 +1337,11 @@ export class MscEzVideo extends HTMLElement {
       btnFullscreen.setAttribute('data-mode', 'off');
     }
 
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.fullscreen, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.fullscreen);
   }
 
   _onPiPchange() {
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.PiP, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.PiP);
   }
 
   _onDblclick() {
@@ -1323,9 +1373,7 @@ export class MscEzVideo extends HTMLElement {
     evt.stopPropagation();
 
     this.muted = !this.muted;
-
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.mute, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.mute);
   }
 
   _onBtnFullscreenClick(evt) {
@@ -1363,19 +1411,11 @@ export class MscEzVideo extends HTMLElement {
      */
     ens.classList.add('error');
 
-    // custom event
-    this.dispatchEvent(new CustomEvent(custumEvents.error, {
-      bubbles: true,
-      composed: true,
-      detail: {
-        error
-      }
-    }));
+    this.#fireEvent(custumEvents.error, { error });
   }
 
   _onRatechange() {
-    // custom event
-    this.dispatchEvent(new Event(custumEvents.rate, { bubbles: true, composed: true }));
+    this.#fireEvent(custumEvents.rate);
   }
 
   _grabVideoInstance() {

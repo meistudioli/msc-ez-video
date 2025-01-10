@@ -29,7 +29,7 @@ That's take a look what can &lt;msc-ez-video /&gt; do in different combination ?
 ```html
 <script 
   type="module"
-  src="https://your-domain/wc-msc-ez-video.js"
+  src="https://unpkg.com/msc-ez-video/mjs/wc-msc-ez-video.js"
 </script>
 ```
 
@@ -88,7 +88,7 @@ Otherwise, developers could also choose `remoteconfig` to fetch config for &lt;m
 
 ```html
 <script type="module">
-import { MscEzVideo } from 'https://your-domain/wc-msc-ez-video.js';
+import { MscEzVideo } from 'https://unpkg.com/msc-ez-video/mjs/wc-msc-ez-video.js';
 
 //use DOM api
 const nodeA = document.createElement('msc-ez-video');
@@ -184,6 +184,15 @@ msc-ez-video {
   --playbackrate-background: rgba(0,0,0,.6);
 }
 </style>
+```
+
+Delevelopers could add attribute - `data-clear-mode` to hide &lt;msc-ez-video />'s reaction & control panel.
+
+```html
+<msc-ez-video
+  data-clear-mode
+  ...
+></msc-ez-video>
 ```
 
 ## Attributes
@@ -303,6 +312,18 @@ Set &lt;msc-ez-video />&gt; loop active or not. Default is `false`. There will b
 ></msc-ez-video>
 ```
 
+- **loopendtime**
+
+Set &lt;msc-ez-video /> looptime (in seconds). Video will seek to `0` when reach this value. Default is `NaN`. This will work only when `loop: true`.
+
+```html
+<msc-ez-video
+  loop
+  loopendtime="10"
+  ...
+></msc-ez-video>
+```
+
 - **controls**
 
 Full function contrl panel will only display in fullscreen mode unless controls set. Default is `false`.
@@ -384,6 +405,7 @@ Increase &lt;msc-ez-video /&gt; playback rate. Minimum is `2`.
 | muted | Boolean | Getter / Setter for &lt;msc-ez-video /&gt;'s mute status. |
 | autoplay | Boolean | Getter / Setter for &lt;msc-ez-video /&gt;'s autoplay status. |
 | loop | Boolean | Getter / Setter for &lt;msc-ez-video /&gt;'s loop status. |
+| loopendtime | Number | Getter / Setter for &lt;msc-ez-video />'s loopendtime (in seconds). This will work only when `loop: true`. |
 | controls | Boolean | Getter / Setter for &lt;msc-ez-video /&gt;'s control panel status. |
 | currentTime | Number | Getter / Setter for &lt;msc-ez-video /&gt;'s currentTime (in seconds). |
 | duration | Number | Getter for &lt;msc-ez-video /&gt;'s duration (in seconds). |
@@ -405,6 +427,7 @@ Increase &lt;msc-ez-video /&gt; playback rate. Minimum is `2`.
 ## Events
 | Event Signature | Description |
 | ----------- | ----------- |
+| ez-video-loadeddata | Fired when &lt;msc-ez-video /> loaded data. |
 | ez-video-play | Fired when &lt;msc-ez-video /&gt; played. |
 | ez-video-pause | Fired when &lt;msc-ez-video /&gt; paused. |
 | ez-video-seek | Fired when &lt;msc-ez-video /&gt; seeked. |
@@ -415,7 +438,5 @@ Increase &lt;msc-ez-video /&gt; playback rate. Minimum is `2`.
 | ez-video-error | Fired when &lt;msc-ez-video /> error occured. |
 
 ## Reference
-- [&lt;msc-ez-video /&gt;](https://blog.lalacube.com/mei/webComponent_msc-ez-video.html)
-
-
-
+- [&lt;msc-ez-video /> demo](https://blog.lalacube.com/mei/webComponent_msc-ez-video.html)
+- [WEBCOMPONENTS.ORG](https://www.webcomponents.org/element/msc-ez-video)

@@ -18,7 +18,7 @@ Object.defineProperties(_wcl, {
       let error, config;
 
       const remoteconfig = host.getAttribute('remoteconfig');
-      const script = host.querySelector('script');
+      const script = host.querySelector(':scope > script[type="application/json"]');
 
       if (remoteconfig) {
         // fetch remote config once [remoteconfig] exist
@@ -65,6 +65,12 @@ Object.defineProperties(_wcl, {
     configurable: true,
     enumerable: true,
     value: function() {
+      /**
+       * Check lib ready
+       * @example
+       whenDefined('document.body', 'YT.Player').then(...)
+       */
+
       const units = Array.from(arguments);
 
       if (units.indexOf('document.body') === -1) {
@@ -159,6 +165,47 @@ Object.defineProperties(_wcl, {
           return $1.toUpperCase();
         }
       );
+    }
+  },
+  checkVisibility: {
+    configurable: true,
+    enumerable: true,
+    value: function(element) {
+      let result = true;
+
+      if (element.checkVisibility) {
+        result = element.checkVisibility({ contentVisibilityAuto:true, opacityProperty:true, visibilityProperty:true });
+      } else if (element.computedStyleMap) {
+        const allComputedStyles = element.computedStyleMap();
+        const { value: display } = allComputedStyles.get('display');
+        const { value: opacity } = allComputedStyles.get('opacity');
+        const { value: visibility } = allComputedStyles.get('visibility');
+        const { value: contentVisibility } = allComputedStyles.get('content-visibility');
+
+        result =
+          opacity === 0 || 
+          ['none', 'contents'].includes(display) ||
+          visibility === 'hidden' || 
+          contentVisibility === 'auto'
+            ? false
+            : true;
+      } else if (window.getComputedStyle) {
+        const allComputedStyles = window.getComputedStyle(element);
+        const display = allComputedStyles.getPropertyValue('display');
+        const opacity = allComputedStyles.getPropertyValue('opacity');
+        const visibility = allComputedStyles.getPropertyValue('visibility');
+        const contentVisibility = allComputedStyles.getPropertyValue('content-visibility');
+
+        result =
+          +opacity === 0 || 
+          ['none', 'contents'].includes(display) ||
+          visibility === 'hidden' || 
+          contentVisibility === 'auto'
+            ? false
+            : true;
+      }
+
+      return result;
     }
   },
   rgbToHex: {
@@ -531,17 +578,25 @@ Object.defineProperties(_wcl, {
     configurable: true,
     enumerable: true,
     value: function(e) {
-      let x, y, docElement, body;
+      let x, y, clientX, clientY, docElement, body;
       
       docElement = document.documentElement;
 
+      if (e?.touches && e?.touches?.length > 0) {
+        clientX = e?.touches?.[0]?.clientX;
+        clientY = e?.touches?.[0]?.clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+
       //x
       body = document.body || { scrollLeft: 0 };
-      x = e.pageX || (e.clientX + (docElement.scrollLeft || body.scrollLeft) - (docElement.clientLeft || 0));
+      x = e?.pageX || (clientX + (docElement.scrollLeft || body.scrollLeft) - (docElement.clientLeft || 0));
 
       //y
       body = document.body || { scrollTop: 0 };
-      y = e.pageY || (e.clientY + (docElement.scrollTop || body.scrollTop) - (docElement.clientTop || 0));
+      y = e?.pageY || (clientY + (docElement.scrollTop || body.scrollTop) - (docElement.clientTop || 0));
 
       return { x, y };
     }
@@ -750,7 +805,7 @@ Object.defineProperties(_wcl, {
     enumerable: true,
     value: (a, b) => {
       let min, max;
-      
+
       if (a > b) {
         min = a;
         max = b;
@@ -760,6 +815,15 @@ Object.defineProperties(_wcl, {
       }
 
       return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+  },
+  getRandomIntInclusive: {
+    configurable: true,
+    enumerable: true,
+    value: (min, max) => {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min + 1)) + min;
     }
   },
   grabStyleSheet: {
@@ -782,6 +846,120 @@ Object.defineProperties(_wcl, {
       }
     }
   },
+  isScrollbarShow: {
+    configurable: true,
+    enumerable: true,
+    value: function() {
+      /* https://davidwalsh.name/detect-scrollbar-width */
+      const scrollDiv = document.createElement('div');
+      scrollDiv.style.cssText = 'inline-size:100px;block-size:100px;overflow:scroll;position:absolute;top:-9999px;';
+      document.body.appendChild(scrollDiv);
+      const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      scrollDiv.remove();
+
+      return scrollbarWidth > 0;
+    }
+  },
+
+  isObjectsEqual: {
+    configurable: true,
+    enumerable: true,
+    value: function(obj1, obj2) {
+      const obj1Keys = Object.keys(obj1).sort();
+      const obj2Keys = Object.keys(obj2).sort();
+      let objEqual = false;
+
+      if (obj1Keys.length !== obj2Keys.length) {
+        objEqual = false;
+      } else {
+        objEqual = obj1Keys.every((key, index) => {
+          const objValue1 = obj1[key];
+          const objValue2 = obj2[obj2Keys[index]];
+          return objValue1 === objValue2;
+        });
+      }
+
+      return objEqual;
+    }
+  },
+
+  isValidURL: {
+    configurable: true,
+    enumerable: true,
+    value: function(url) {
+      try { 
+        return Boolean(new URL(url)); 
+      }
+      catch(e){ 
+        return false; 
+      }
+    }
+  },
+
+  loadImage: {
+    configurable: true,
+    enumerable: true,
+    value: function(url, crossOrigin) {
+      return new Promise(
+        (resolve, reject) => {
+          const img = new Image();
+          
+          img.onload = () => {
+            resolve(img);
+          };
+
+          img.onerror = (e) => {
+            reject(e);
+          };
+
+          if (typeof crossOrigin !== 'undefined') {
+            img.crossOrigin = crossOrigin;
+          }
+          
+          img.src = url;
+        }
+      );
+    }
+  },
+
+  prepareFetch: {
+    configurable: true,
+    enumerable: true,
+    value: function(timeout = 5000) {
+      const fetchController = new AbortController();
+      const signal = fetchController.signal;
+
+      // timeout
+      setTimeout(() => fetchController.abort(), timeout);
+
+      return signal;
+    }
+  },
+
+  cloneStyleSheetsToDocument: {
+    configurable: true,
+    enumerable: true,
+    value: function(targetDocument) {
+      [...document.styleSheets].forEach((styleSheet) => {
+        try {
+          const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+          const style = document.createElement('style');
+
+          style.textContent = cssRules;
+          targetDocument.head.appendChild(style);
+        } catch (e) {
+          const link = document.createElement('link');
+
+          link.rel = 'stylesheet';
+          link.type = styleSheet.type;
+          link.media = styleSheet.media;
+          link.href = styleSheet.href;
+          targetDocument.head.appendChild(link);
+        }
+      });
+    }
+  },
+
   addStylesheetRules: {
     configurable: true,
     enumerable: true,
@@ -834,4 +1012,84 @@ Object.defineProperties(_wcl, {
       }
     }
   }
+  // addStylesheetRules: {
+  //   configurable: true,
+  //   enumerable: true,
+  //   value: function(selector = '', props = {}, ...others) {
+  //     /**
+  //      * Add a stylesheet rule to the document
+  //      * @example
+  //      addStylesheetRules(
+  //       'body',
+  //       {
+  //         background: '#f00',
+  //         color: '#0f0'
+  //       }
+  //       [, styleSheet]
+  //      )
+
+  //      addStylesheetRules(
+  //       '@keyframes fancy-anchor-ripple',
+  //       {
+  //         '0%': '{transform:scale(1);opacity:1;}',
+  //         '100%': '{transform:scale(100);opacity:0;}'
+  //       }
+  //       [, styleSheet]
+  //      )
+
+  //      addStylesheetRules(
+  //       'body',
+  //       {
+  //         background: '#f00',
+  //         color: '#0f0'
+  //       }
+  //       'components.heros'
+  //       [, styleSheet]
+  //      )
+  //      */
+
+  //     const [
+  //       layerName = undefined,
+  //       styleSheet = this.grabStyleSheet() 
+  //     ] = others;
+
+  //     const sheet = styleSheet.sheet;
+  //     const propStr = Object.keys(props).reduce(
+  //       (acc, cur) => {
+  //         let sign;
+
+  //         sign = /^\{.*\}$/.test(props[cur]) ? '' : ':';
+  //         return acc.concat([`${cur}${sign}${props[cur]}`]);
+  //       }
+  //     , []).join((/keyframes/i.test(selector)) ? '' : ';');
+
+  //     if (layerName) {
+  //       // add rules to layer
+  //       const layer = Array.from(sheet.cssRules).find((rule) => rule?.name === layerName);
+        
+  //       if (layer !== undefined) {
+  //         try {
+  //           const idx = Array.from(layer.cssRules).findIndex((rule) => rule.selectorText === selector);
+  //           layer.cssRules[idx].style.cssText = propStr;
+  //         } catch(err) { /*error*/ }
+  //       } else {
+  //         try {
+  //           sheet.insertRule(`@layer ${layerName}{${selector}{${propStr}}}`, sheet.cssRules.length);
+  //         } catch(err) { /*error*/ }
+  //       }
+  //     } else {
+  //       const idx = Array.from(sheet.cssRules).findIndex((rule) => rule.selectorText === selector);
+
+  //       if (idx !== -1) {
+  //         try {
+  //           sheet.cssRules[idx].style.cssText = propStr;
+  //         } catch(err) { /*error*/ }
+  //       } else {
+  //         try {
+  //           sheet.insertRule(`${selector}{${propStr}}`, sheet.cssRules.length);
+  //         } catch(err) { /*error*/ }
+  //       }
+  //     }
+  //   }
+  // }
 });
