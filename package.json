@@ -1,6 +1,6 @@
 {
   "name": "msc-ez-video",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Modern browsers already had a vivid player for <video />. However, web developers and designers still want to custom their own style player for different situations. Sounds like web component will do a lot favor for this purpose. With <msc-ez-video /> support, customize control panel will become a piece of cake. <msc-ez-video /> adopts CSS custom properties, developers could style them as they want.",
   "main": "index.html",
   "scripts": {

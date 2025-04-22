@@ -23,6 +23,7 @@ const custumEvents = {
   play: 'ez-video-play',
   pause: 'ez-video-pause',
   seek: 'ez-video-seek',
+  timeupdate: 'ez-video-timeupdate',
   mute: 'ez-video-mutechange',
   fullscreen: 'ez-video-fullscreenchange',
   PiP: 'ez-video-PiPchange',
@@ -1306,6 +1307,8 @@ export class MscEzVideo extends HTMLElement {
 
     input.value = value;
     this._updatePassedInfo();
+
+    this.#fireEvent(custumEvents.timeupdate);
   }
 
   _onInput() {

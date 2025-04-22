@@ -433,6 +433,7 @@ Increase &lt;msc-ez-video /&gt; playback rate. Minimum is `2`.
 | ez-video-play | Fired when &lt;msc-ez-video /&gt; played. |
 | ez-video-pause | Fired when &lt;msc-ez-video /&gt; paused. |
 | ez-video-seek | Fired when &lt;msc-ez-video /&gt; seeked. |
+| ez-video-timeupdate | Fired when &lt;msc-ez-video /&gt; timeupdate. |
 | ez-video-mutechange | Fired when &lt;msc-ez-video /&gt;'s mute status changed. |
 | ez-video-fullscreenchange | Fired when &lt;msc-ez-video /&gt; full screen changed. |
 | ez-video-PiPchange | Fired when &lt;msc-ez-video /&gt; picture in picutre changed. |
